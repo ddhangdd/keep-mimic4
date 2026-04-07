@@ -153,6 +153,16 @@ The KEEP paper (Appendix A.1.1) says: filter for condition concepts, use CONCEPT
 - Every node is reachable from the root
 - Saved as `omop_graph.pkl`, `concept_to_idx.pkl`, `idx_to_concept.pkl`
 
+### Reference-code gotcha — orphan rescue (DISCOVERED 2026-04-07)
+
+The naive "depth ≤ 5 standard Conditions / `min_levels_of_separation = 1` edges" recipe leaves **42 nodes unreachable from the root** in our run (7 primary orphans with in-degree 0 + 35 downstream descendants). The KEEP paper §A.1.1 doesn't mention this and the KEEP reference repo bypasses construction entirely (it loads a pre-built `ukbb_omop_tree_filtered.pickle`), so it's easy to miss until the "every node reachable from the root" acceptance criterion fails.
+
+**Cause:** some standard SNOMED Condition concepts have their direct (`min_levels_of_separation = 1`) parent in a non-`Condition` domain — typically `Observation` — and that parent gets filtered out by the `domain_id = 'Condition'` predicate. The child then loses its only incoming edge and orphans itself + its entire subtree.
+
+Concrete example we hit: concept `4234597` "Misuses drugs" is `domain_id = 'Condition'`, `standard_concept = 'S'`, depth 4 from root. Its only direct parent in `CONCEPT_ANCESTOR` is `4042889` "Finding relating to drug misuse behavior", which is `domain_id = 'Observation'`. So `4042889` is filtered out and `4234597` becomes orphaned, taking 6 of its descendants with it (e.g., `44807040` "Misuses anabolic steroids").
+
+**Fix:** for each primary orphan (in-degree 0, not the root), query `CONCEPT_ANCESTOR` for its **closest in-node-set ancestor** — smallest `min_levels_of_separation > 0`, ties broken deterministically by smaller `ancestor_concept_id` via SQL `ROW_NUMBER() OVER (...)` — and add a rescue edge from that ancestor to the orphan. Implemented as step 3a in `keep_pipeline/scripts/build_omop_graph.py`. In our run, all 7 primary orphans were rescued at depth 2 or 3; none needed to fall back to the root. After rescue: 68,396 nodes ✓, 152,340 + 7 = **152,347 edges**, every node reachable, still a DAG. Re-running the script produces byte-identical pickles because both the queries and the tie-break are deterministic.
+
 ### Key detail
 The concept_to_idx mapping is critical — it defines the row ordering for all embedding matrices. Node2vec will produce vectors indexed by this mapping, the co-occurrence matrix will use this mapping, and the final exported text file will use the concept_id strings from this mapping.
 
