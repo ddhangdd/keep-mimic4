@@ -1,0 +1,36 @@
+# Clones of upstream repos (not part of this project)
+PyHealth/
+keep_reference/
+
+# Athena vocabulary CSVs (~800 MB, license-restricted, downloaded separately)
+data/
+
+# Derived pipeline artifacts (regenerable from scripts/)
+keep_pipeline/data/
+keep_pipeline/embeddings/
+
+# Paper PDF (copyright; reference https://arxiv.org/abs/2510.05049 instead)
+KEEP paper.pdf
+*.pdf
+
+# Per-project tool/agent settings
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
