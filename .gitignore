@@ -13,8 +13,9 @@ keep_pipeline/embeddings/
 KEEP paper.pdf
 *.pdf
 
-# Per-project tool/agent settings
-.claude/
+# Per-project tool/agent settings (but track shared skills)
+.claude/*
+!.claude/skills/
 
 # Python
 __pycache__/
