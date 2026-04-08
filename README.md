@@ -7,6 +7,8 @@ Reproduction of **KEEP: Knowledge-preserving and Empirically refined Embedding P
 
 The end goal is to plug KEEP-trained medical-code embeddings into a GRASP+GRU in-hospital mortality model in PyHealth 2.0 and compare against the model's default learned embeddings.
 
+> **🌐 Live visualization:** **[ddhangdd.github.io/keep-mimic4/keep_pipeline/viz/](https://ddhangdd.github.io/keep-mimic4/keep_pipeline/viz/)** — an interactive walk through the 68,396-node OMOP knowledge graph and the seven primary orphans the build script had to rescue. Cytoscape.js force-directed sample, depth distribution, and detailed case studies for each orphan.
+
 ## Status
 
 | Story | Description | Status |
@@ -141,6 +143,8 @@ flowchart LR
 ```
 
 Green = built, orange = TBD. The "two-stage" KEEP design from the paper is the `train_node2vec.py` → `train_keep_glove.py` chain on the right side: node2vec generates an initial embedding from the knowledge graph alone, then regularized GloVe refines it on the empirical co-occurrence matrix while staying close to the node2vec init via an L2 regularization term (paper Equation 4, p. 5).
+
+> 🔍 **See the actual graph:** the [live visualization page](https://ddhangdd.github.io/keep-mimic4/keep_pipeline/viz/) renders a sampled slice of the real `omop_graph.pkl` in your browser, plus detailed case studies of all 7 primary orphans from the rescue patch.
 
 ## Quick start (reproducing Stories 0 + 2)
 
