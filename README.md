@@ -165,7 +165,7 @@ A few things that surprised us during reproduction and aren't obvious from the p
 - **Story 6 — three reference-vs-paper deviations.** The G2Lab reference `train_glove.py` differs from the KEEP paper in three places, all confirmed by reading the paper PDF:
   - `LAMBD = 1e-5` (line 56) — paper Table 6 (p. 16) says **`λ = 1×10⁻³`**
   - `torch.optim.Adagrad` (line 188) — paper Algorithm 1 (p. 14) says **AdamW**
-  - `REG_NORM = None` → cosine distance (line 162) — paper Equation 4 (p. 5) says **squared L2 norm**
+  - Default `REG_NORM = None` (line 46), which routes `Glove.forward` through the `1 - cosine_similarity` branch at lines 161-163 — paper Equation 4 (p. 5) says **squared L2 norm**. Pass `reg_norm=2` to take the L2 branch at lines 165-166 instead.
 
   When implementing Story 6, follow the paper, not the reference repo. (Verified by us against `KEEP paper.pdf` arxiv:2510.05049v1.)
 
